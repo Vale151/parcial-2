@@ -6,6 +6,7 @@ sealed class ClimaEstado {
         val temperatura: Double = 0.0,
         val descripcion: String= "",
         val st :Double = 0.0,
+        val icono : String = ""
         ) : ClimaEstado()
     data class Error(
         val mensaje :String = "",
