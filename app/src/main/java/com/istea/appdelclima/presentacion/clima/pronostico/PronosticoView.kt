@@ -111,7 +111,7 @@ fun PronosticoView(climas: List<ListForecast>) {
 
                     // Temperatura
                     Text(
-                        text = "Temperatura: ${forecast.main.temp}°C",
+                        text = "Temperatura: ${forecast.main.temp.toInt()}°C",
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
@@ -121,7 +121,7 @@ fun PronosticoView(climas: List<ListForecast>) {
 
                     // Sensación térmica
                     Text(
-                        text = "Sensación térmica: ${forecast.main.feels_like}°C",
+                        text = "Sensación térmica: ${forecast.main.feels_like.toInt()}°C",
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
                     )
 
