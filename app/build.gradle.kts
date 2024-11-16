@@ -70,7 +70,13 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation ("io.coil-kt:coil:2.2.2")
+    implementation ("com.google.android.gms:play-services-location:18.0.0")
     //implementation("implementation 'androidx.compose.material:material-icons-core:1.4.0")
+    implementation ("androidx.compose.ui:ui:1.6.7")
+    implementation ("androidx.compose.material3:material3:1.1.0")
+    //Guardar datos del usr
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC")

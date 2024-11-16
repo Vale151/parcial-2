@@ -13,48 +13,81 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.Modifier
 import com.istea.appdelclima.repository.modelos.Ciudad
-
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.LocationOn
 
 @Composable
-fun CiudadesView (
+fun CiudadesView(
     modifier: Modifier = Modifier,
-    state : CiudadesEstado,
-    onAction: (CiudadesIntencion)->Unit
+    state: CiudadesEstado,
+    onAction: (CiudadesIntencion) -> Unit
 ) {
-    var value by remember{ mutableStateOf("") }
+    var value by remember { mutableStateOf("") }
 
     Column(modifier = modifier) {
-        TextField(
-            value = value,
-            label = { Text(text = "buscar por nombre") },
-            onValueChange = {
-                value = it
-                onAction(CiudadesIntencion.Buscar(value))
-            },
-        )
-        when(state) {
-            CiudadesEstado.Cargando -> Text(text = "cargando")
-            is CiudadesEstado.Error -> Text(text = state.mensaje)
-            is CiudadesEstado.Resultado -> ListaDeCiudades(state.ciudades) {
-                onAction(
-                    CiudadesIntencion.Seleccionar(it)
+        // Fila para el TextField y el botón de geolocalización
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // TextField
+            TextField(
+                value = value,
+                label = { Text(text = "Buscar por nombre") },
+                onValueChange = {
+                    value = it
+                    onAction(CiudadesIntencion.Buscar(value))
+                },
+                modifier = Modifier.weight(1f), // El TextField ocupa el espacio restante
+                singleLine = true
+            )
+
+            // Icono de geolocalización
+            IconButton(
+                onClick = {
+                    onAction(CiudadesIntencion.ObtenerUbicacion) // Acción al hacer click en el ícono
+                },
+                modifier = Modifier.padding(start = 8.dp) // Espaciado entre el TextField y el ícono
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn, // Icono de ubicación de Material Design
+                    contentDescription = "Obtener ubicación",
+                    tint = Color.White
                 )
             }
-            CiudadesEstado.Vacio -> Text(text = "No hay resultados")
+        }
+
+        // Mostrar estado según el resultado de la búsqueda
+        when (state) {
+            CiudadesEstado.Cargando -> Text(text = "Cargando...", modifier = Modifier.align(Alignment.CenterHorizontally))
+            is CiudadesEstado.Error -> Text(text = state.mensaje, modifier = Modifier.align(Alignment.CenterHorizontally))
+            is CiudadesEstado.Resultado -> ListaDeCiudades(state.ciudades) {
+                onAction(CiudadesIntencion.Seleccionar(it))
+            }
+            CiudadesEstado.Vacio -> Text(text = "No hay resultados", modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaDeCiudades(ciudades: List<Ciudad>, onSelect: (Ciudad)->Unit) {
+fun ListaDeCiudades(ciudades: List<Ciudad>, onSelect: (Ciudad) -> Unit) {
     LazyColumn {
-        items(items = ciudades) {
-            Card(onClick = { onSelect(it) }) {
-                Text(text = it.name)
+        items(items = ciudades) { ciudad ->
+            Card(onClick = { onSelect(ciudad) }) {
+                Text(text = ciudad.name, modifier = Modifier.padding(16.dp))
             }
         }
     }

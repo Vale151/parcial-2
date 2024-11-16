@@ -7,6 +7,7 @@ sealed class ClimaEstado {
         val descripcion: String= "",
         val st :Double = 0.0,
         val icono : String = ""
+        //val ciudades: List<Ciudad> = emptyList() // Agrega esta lista
         ) : ClimaEstado()
     data class Error(
         val mensaje :String = "",
