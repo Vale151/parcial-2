@@ -28,16 +28,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.Image
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.tooling.preview.Preview
 import  androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun CiudadesPage(
-    navHostController: NavHostController,
-    //state: CiudadesEstado // Usamos CiudadesEstado como tipo
-
+    navHostController: NavHostController
 ) {
     val context = LocalContext.current
     val viewModel: CiudadesViewModel = viewModel(
@@ -49,7 +50,7 @@ fun CiudadesPage(
     )
 
     val state = viewModel.uiState // Ahora obtenemos el estado del ViewModel
-    //val ciudadesGuardadas by viewModel.obtenerCiudadesGuardadas().collectAsState(initial = emptySet())
+    val ciudadesGuardadas = viewModel.ciudadesGuardadas.collectAsState().value // Lista de ciudades guardadas desde el ViewModel
 
     Box(
         modifier = Modifier
@@ -76,23 +77,21 @@ fun CiudadesPage(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Mostrar ciudades guardadas
-            /*if (ciudadesGuardadas.isNotEmpty()) {
+            // Mostrar ciudades guardadas solo si hay alguna
+            if (ciudadesGuardadas.isNotEmpty()) {
                 Text(
                     text = "Ciudades guardadas:",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     modifier = Modifier.padding(8.dp)
                 )
-                LazyColumn {
-                    items(ciudadesGuardadas.toList()) { ciudadNombre ->
-                        CiudadCardGuardada(
-                            ciudadNombre = ciudadNombre,
-                            onRemove = { /* Implementa la lógica para eliminar la ciudad guardada si lo necesitas */ }
-                        )
+                CiudadesGuardadas(
+                    ciudadesGuardadas = ciudadesGuardadas.toSet(),
+                    onRemove = { ciudad ->
+                        viewModel.ejecutar(CiudadesIntencion.Eliminar(ciudad))
                     }
-                }
-            }*/
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -140,67 +139,7 @@ fun CiudadesPage(
     }
 }
 
-/*@Composable
-fun CiudadCard(
-    estado: ClimaEstado.Exitoso,
-    onSave: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icono del clima
-            Image(
-                painter = rememberImagePainter(data = estado.icono),
-                contentDescription = "Icono del clima",
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(end = 16.dp)
-            )
 
-            // Información del clima
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                /*Text(
-                    text = estado.ciudad,
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = Color.Black
-                )*/
-                Text(text = estado.ciudad)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Temperatura: ${estado.temperatura}°C")
-                Text(text = "Sensación térmica: ${estado.st}°C")
-                Text(text = estado.descripcion.capitalize())
-            }
-
-            // Botón para guardar
-            Button(
-                onClick = onSave,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-            ) {
-                Text(text = "Guardar")
-            }
-        }
-    }
-}
-
-
-
- */
 @Composable
 fun CiudadCard(
     ciudad: Ciudad, // Ahora pasa un objeto Ciudad
@@ -211,7 +150,7 @@ fun CiudadCard(
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+        colors = CardDefaults.cardColors(containerColor = Color.Blue)
     ) {
         Row(
             modifier = Modifier
@@ -257,55 +196,44 @@ fun CiudadCard(
     }
 }
 
-/*@Composable
+
+@Composable
+fun CiudadesGuardadas(
+    ciudadesGuardadas: Set<String>,
+    onRemove: (String) -> Unit
+) {
+    LazyColumn {
+        items(ciudadesGuardadas.toList()) { ciudad ->
+            CiudadCardGuardada(
+                ciudadNombre = ciudad,
+                onRemove = { onRemove(ciudad) }
+            )
+        }
+    }
+}
+
+@Composable
 fun CiudadCardGuardada(
-    ciudad: Ciudad, // Reutilizamos el objeto Ciudad
+    ciudadNombre: String,
     onRemove: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1565C0)) // Azul oscuro
+            .padding(8.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Información de la ciudad
-            Column(
+            Text(
+                text = ciudadNombre,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = ciudad.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "País: ${ciudad.country}, Estado: ${ciudad.state}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-                Text(
-                    text = "Latitud: ${ciudad.lat}, Longitud: ${ciudad.lon}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-            }
-
-            // Botón para eliminar ciudad guardada
+            )
             IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar ciudad",
-                    tint = Color.Red
-                )
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
             }
         }
     }
 }
- */

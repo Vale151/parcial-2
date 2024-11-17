@@ -76,6 +76,7 @@ dependencies {
     implementation ("androidx.compose.material3:material3:1.1.0")
     //Guardar datos del usr
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
 
     testImplementation("junit:junit:4.13.2")
