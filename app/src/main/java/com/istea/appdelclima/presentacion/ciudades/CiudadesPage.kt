@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.tooling.preview.Preview
 import  androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
+import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.LocationOn
 
 @Composable
 fun CiudadesPage(
@@ -49,100 +61,135 @@ fun CiudadesPage(
         )
     )
 
-    val state = viewModel.uiState // Ahora obtenemos el estado del ViewModel
-    val ciudadesGuardadas = viewModel.ciudadesGuardadas.collectAsState().value // Lista de ciudades guardadas desde el ViewModel
+    val state = viewModel.uiState
+    val ciudadesGuardadas = viewModel.ciudadesGuardadas.collectAsState().value
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val mostrarCiudades = remember { mutableStateOf(true) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF5C6BC0), // Azul suave
-                        Color(0xFF8E24AA)  // Violeta suave
-                    )
-                )
-            )
-    ) {
-        Column(
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = Modifier.fillMaxSize(),
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF5C6BC0), // Azul suave
+                            Color(0xFF8E24AA)  // Violeta suave
+                        )
+                    )
+                )
+                .padding(innerPadding)
         ) {
-            // Componente de búsqueda y geolocalización
-            CiudadesView(
-                state = state,
-                onAction = { intencion -> viewModel.ejecutar(intencion) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Mostrar ciudades guardadas solo si hay alguna
-            if (ciudadesGuardadas.isNotEmpty()) {
-                Text(
-                    text = "Ciudades guardadas:",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    modifier = Modifier.padding(8.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Componente de búsqueda
+                CiudadesView(
+                    state = state,
+                    onAction = { intencion -> viewModel.ejecutar(intencion) },
+                    mostrarCiudades = mostrarCiudades.value,
+                    onMostrarCiudadesChanged = {mostrarCiudades.value = it}
                 )
-                CiudadesGuardadas(
-                    ciudadesGuardadas = ciudadesGuardadas.toSet(),
-                    onRemove = { ciudad ->
-                        viewModel.ejecutar(CiudadesIntencion.Eliminar(ciudad))
-                    }
-                )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Contenedor de tarjetas de ciudades
-            LazyColumn {
-                when (state) {
-                    is CiudadesEstado.Cargando -> {
-                        item {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                // Mostrar ciudades guardadas
+                if (ciudadesGuardadas.isNotEmpty()) {
+                    Text(
+                        text = "Ciudades guardadas:",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    CiudadesGuardadas(
+                        ciudadesGuardadas = ciudadesGuardadas.toSet(),
+                        onRemove = { ciudad ->
+                            viewModel.ejecutar(CiudadesIntencion.Eliminar(ciudad))
                         }
-                    }
-                    is CiudadesEstado.Error -> {
-                        item {
-                            Text(
-                                text = "Error: ${state.mensaje}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(16.dp)
-                            )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Resultados de búsqueda en LazyColumn
+                LazyColumn {
+                    when (state) {
+                        is CiudadesEstado.Cargando -> {
+                            item {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
-                    }
-                    is CiudadesEstado.Resultado -> {
-                        items(state.ciudades) { ciudad ->
-                            CiudadCard(ciudad = ciudad) {
-                                viewModel.ejecutar(CiudadesIntencion.Seleccionar(ciudad))
+                        is CiudadesEstado.Error -> {
+                            item {
+                                Text(
+                                    text = "Error: ${state.mensaje}",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+                        is CiudadesEstado.Resultado -> {
+                            items(state.ciudades) { ciudad ->
+                                CiudadCard(ciudad = ciudad) {
+                                    viewModel.ejecutar(CiudadesIntencion.Seleccionar(ciudad))
+                                }
+                            }
+                        }
+                        CiudadesEstado.Vacio -> {
+                            item {
+                                Text(
+                                    text = "No hay ciudades disponibles.",
+                                    modifier = Modifier.padding(16.dp)
+                                )
                             }
                         }
                     }
-                    CiudadesEstado.Vacio -> {
-                        item {
-                            Text(
-                                text = "No hay ciudades disponibles.",
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                    }
+                }
+            }
+        }
+        // Mostrar el mensaje emergente si es necesario
+        LaunchedEffect(viewModel.showSuccessMessage) {
+            if (viewModel.showSuccessMessage) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Ciudad guardada correctamente",
+                        duration = SnackbarDuration.Short // Duración más corta
+                    )
+
+                    viewModel.showSuccessMessage = false // Resetear el estado
+                }
+            }
+        }
+        LaunchedEffect(viewModel.showDeletionMessage) {
+            if (viewModel.showDeletionMessage) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Ciudad eliminada",
+                        duration = SnackbarDuration.Short // Duración más corta
+                    )
+
+                    viewModel.showDeletionMessage = false // Resetear el estado
                 }
             }
         }
     }
 }
 
-
 @Composable
 fun CiudadCard(
-    ciudad: Ciudad, // Ahora pasa un objeto Ciudad
+    ciudad: Ciudad,
     onSave: () -> Unit
 ) {
     Card(
@@ -150,7 +197,7 @@ fun CiudadCard(
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Blue)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1))
     ) {
         Row(
             modifier = Modifier
@@ -158,44 +205,44 @@ fun CiudadCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Aquí puedes poner un icono si lo deseas, en base al clima u otros datos
-            Image(
-                painter = rememberImagePainter(data = "url_o_ruta_a_un_icono"),
-                contentDescription = "Icono del clima",
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(end = 16.dp)
+            // Icono de ciudad
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Ciudad",
+                tint = Color(0xFF5C6BC0),
+                modifier = Modifier.size(48.dp).padding(end = 16.dp)
             )
 
             // Información de la ciudad
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = ciudad.name,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                // Aquí puedes incluir más detalles sobre la ciudad si es necesario
-                Text(text= "Pais: ${ciudad.country}")
-                Text(text = "Ciudad: ${ciudad.name}")
-                Text(text = "Estado: ${ciudad.state}")
-                Text(text = "Lat: ${ciudad.lat}, Lon: ${ciudad.lon}")
+                Text(
+                    text = "País: ${ciudad.country}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Lat: ${ciudad.lat}, Lon: ${ciudad.lon}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
             }
 
-            // Botón para guardar o realizar alguna acción
+            // Botón "Guardar"
             Button(
                 onClick = onSave,
-                modifier = Modifier
-                    .padding(start = 16.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8E24AA))
             ) {
-                Text(text = "Guardar")
+                Text(text = "Guardar", color = Color.White)
             }
         }
     }
 }
-
 
 @Composable
 fun CiudadesGuardadas(
@@ -220,6 +267,57 @@ fun CiudadCardGuardada(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = ciudadNombre,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f),
+                color = Color.Black
+            )
+            IconButton(onClick = onRemove) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = Color.Red
+                )
+            }
+        }
+    }
+}
+
+
+
+
+/*@Composable
+fun CiudadesGuardadas(
+    ciudadesGuardadas: Set<String>,
+    onRemove: (String) -> Unit
+) {
+    LazyColumn {
+        items(ciudadesGuardadas.toList()) { ciudad ->
+            CiudadCardGuardada(
+                ciudadNombre = ciudad,
+                onRemove = { onRemove(ciudad) }
+            )
+        }
+    }
+}*/
+
+/*@Composable
+fun CiudadCardGuardada(
+    ciudadNombre: String,
+    onRemove: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(8.dp)
     ) {
         Row(
@@ -232,8 +330,12 @@ fun CiudadCardGuardada(
                 modifier = Modifier.weight(1f)
             )
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = Color.Red
+                )
             }
         }
     }
-}
+}*/

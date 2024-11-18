@@ -25,12 +25,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun CiudadesView(
     modifier: Modifier = Modifier,
     state: CiudadesEstado,
-    onAction: (CiudadesIntencion) -> Unit
+    onAction: (CiudadesIntencion) -> Unit,
+    mostrarCiudades: Boolean,
+    onMostrarCiudadesChanged: (Boolean) -> Unit // Callback para actualizar el valor
 ) {
     var value by remember { mutableStateOf("") }
 
@@ -75,6 +84,7 @@ fun CiudadesView(
             is CiudadesEstado.Error -> Text(text = state.mensaje, modifier = Modifier.align(Alignment.CenterHorizontally))
             is CiudadesEstado.Resultado -> ListaDeCiudades(state.ciudades) {
                 onAction(CiudadesIntencion.Seleccionar(it))
+                onMostrarCiudadesChanged(false)
             }
             CiudadesEstado.Vacio -> Text(text = "No hay resultados", modifier = Modifier.align(Alignment.CenterHorizontally))
         }
@@ -89,6 +99,7 @@ fun ListaDeCiudades(ciudades: List<Ciudad>, onSelect: (Ciudad) -> Unit) {
             Card(onClick = { onSelect(ciudad) }) {
                 Text(text = ciudad.name, modifier = Modifier.padding(16.dp))
             }
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }

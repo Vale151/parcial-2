@@ -39,6 +39,8 @@ class CiudadesViewModel(
     private val dataStore = context.dataStore
 
     private val CITIES_KEY = stringSetPreferencesKey("ciudades_guardadas")
+    var mostrarCiudades: Boolean by mutableStateOf(true)  // Nuevo estado para mostrar u ocultar la lista
+    var showDeletionMessage by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -53,15 +55,18 @@ class CiudadesViewModel(
             CiudadesIntencion.ObtenerUbicacion -> obtenerUbicacion()
             is CiudadesIntencion.Seleccionar -> seleccionar(intencion.ciudad)
             is CiudadesIntencion.Eliminar -> eliminarCiudad(intencion.ciudadNombre)
+            is CiudadesIntencion.Guardar -> guardarCiudad(intencion.ciudadNombre)
         }
     }
 
     // Buscar ciudades por nombre
     private fun buscar(nombre: String) {
+        ciudades = emptyList()
         uiState = CiudadesEstado.Cargando
         viewModelScope.launch {
             try {
                 ciudades = repositorio.buscarCiudad(nombre)
+                mostrarCiudades = true
                 if (ciudades.isEmpty()) {
                     uiState = CiudadesEstado.Vacio
                 } else {
@@ -115,6 +120,8 @@ class CiudadesViewModel(
                 preferences[CITIES_KEY] = nuevasCiudades.toSet()
             }
             _ciudadesGuardadas.value = nuevasCiudades
+            // Muestra el mensaje de eliminación
+            showDeletionMessage = true
         }
     }
 
@@ -140,6 +147,13 @@ class CiudadesViewModel(
     // Método para actualizar las ciudades guardadas
     private fun updateCiudadesGuardadas() {
         _ciudadesGuardadas.value = _ciudadesGuardadas.value
+    }
+
+    private fun guardarCiudad(ciudadNombre: String) {
+        viewModelScope.launch {
+            guardarCiudadSeleccionada(ciudadNombre)
+        }
+
     }
 }
 
