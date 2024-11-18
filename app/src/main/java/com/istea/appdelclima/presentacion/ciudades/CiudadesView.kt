@@ -32,6 +32,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import  androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun CiudadesView(
@@ -39,19 +43,17 @@ fun CiudadesView(
     state: CiudadesEstado,
     onAction: (CiudadesIntencion) -> Unit,
     mostrarCiudades: Boolean,
-    onMostrarCiudadesChanged: (Boolean) -> Unit // Callback para actualizar el valor
+    onMostrarCiudadesChanged: (Boolean) -> Unit
 ) {
     var value by remember { mutableStateOf("") }
 
     Column(modifier = modifier) {
-        // Fila para el TextField y el botón de geolocalización
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // TextField
             TextField(
                 value = value,
                 label = { Text(text = "Buscar por nombre") },
@@ -59,25 +61,23 @@ fun CiudadesView(
                     value = it
                     onAction(CiudadesIntencion.Buscar(value))
                 },
-                modifier = Modifier.weight(1f), // El TextField ocupa el espacio restante
+                modifier = Modifier.weight(1f),
                 singleLine = true
             )
-
-            // Icono de geolocalización
             IconButton(
                 onClick = {
-                    onAction(CiudadesIntencion.ObtenerUbicacion) // Acción al hacer click en el ícono
+                    onAction(CiudadesIntencion.ObtenerUbicacion)
                 },
-                modifier = Modifier.padding(start = 8.dp) // Espaciado entre el TextField y el ícono
+                modifier = Modifier.padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.LocationOn, // Icono de ubicación de Material Design
+                    imageVector = Icons.Default.LocationOn,
                     contentDescription = "Obtener ubicación",
-                    tint = Color.White
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
                 )
             }
         }
-
         // Mostrar estado según el resultado de la búsqueda
         when (state) {
             CiudadesEstado.Cargando -> Text(text = "Cargando...", modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -86,7 +86,20 @@ fun CiudadesView(
                 onAction(CiudadesIntencion.Seleccionar(it))
                 onMostrarCiudadesChanged(false)
             }
-            CiudadesEstado.Vacio -> Text(text = "No hay resultados", modifier = Modifier.align(Alignment.CenterHorizontally))
+            //CiudadesEstado.Vacio -> Text(text = "No hay resultados", modifier = Modifier.align(Alignment.CenterHorizontally))
+            CiudadesEstado.Vacio -> {
+                Text(
+                    text = "No hay resultados aún",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                )
+            }
         }
     }
 }

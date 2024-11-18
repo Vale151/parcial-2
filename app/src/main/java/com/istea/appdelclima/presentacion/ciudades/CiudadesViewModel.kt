@@ -14,12 +14,8 @@ import kotlinx.coroutines.launch
 import android.content.Context
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.edit
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-//import com.istea.appdelclima.data
 import data.dataStore
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -33,13 +29,13 @@ class CiudadesViewModel(
     var uiState by mutableStateOf<CiudadesEstado>(CiudadesEstado.Vacio)
     var ciudades: List<Ciudad> = emptyList()
     var showSuccessMessage by mutableStateOf(false)
-    private val _ciudadesGuardadas = MutableStateFlow<List<String>>(emptyList()) // Cambié a List<String> porque estamos guardando los nombres de las ciudades.
+    private val _ciudadesGuardadas = MutableStateFlow<List<String>>(emptyList())
     val ciudadesGuardadas: StateFlow<List<String>> get() = _ciudadesGuardadas
 
     private val dataStore = context.dataStore
 
     private val CITIES_KEY = stringSetPreferencesKey("ciudades_guardadas")
-    var mostrarCiudades: Boolean by mutableStateOf(true)  // Nuevo estado para mostrar u ocultar la lista
+    var mostrarCiudades: Boolean by mutableStateOf(true)
     var showDeletionMessage by mutableStateOf(false)
 
     init {
@@ -48,7 +44,6 @@ class CiudadesViewModel(
         }
     }
 
-    // Método para ejecutar las intenciones que llegan desde la vista
     fun ejecutar(intencion: CiudadesIntencion) {
         when (intencion) {
             is CiudadesIntencion.Buscar -> buscar(intencion.nombre)
@@ -59,7 +54,6 @@ class CiudadesViewModel(
         }
     }
 
-    // Buscar ciudades por nombre
     private fun buscar(nombre: String) {
         ciudades = emptyList()
         uiState = CiudadesEstado.Cargando
@@ -78,7 +72,6 @@ class CiudadesViewModel(
         }
     }
 
-    // Seleccionar una ciudad
     private fun seleccionar(ciudad: Ciudad) {
         val ruta = Ruta.Clima(
             lat = ciudad.lat,
@@ -87,13 +80,11 @@ class CiudadesViewModel(
         )
         router.navegar(ruta)
 
-        // Guardar la ciudad seleccionada
         viewModelScope.launch {
             guardarCiudadSeleccionada(ciudad.name)
         }
     }
 
-    // Guardar una ciudad seleccionada en DataStore
     private suspend fun guardarCiudadSeleccionada(ciudad: String) {
         context.dataStore.edit { preferences ->
             val ciudadesGuardadas = preferences[CITIES_KEY] ?: emptySet()
@@ -103,7 +94,6 @@ class CiudadesViewModel(
         updateCiudadesGuardadas()
     }
 
-    // Cargar las ciudades guardadas desde DataStore
     private suspend fun cargarCiudadesGuardadas() {
         dataStore.data.map { preferences ->
             preferences[CITIES_KEY] ?: emptySet()
@@ -112,7 +102,6 @@ class CiudadesViewModel(
         }
     }
 
-    // Eliminar una ciudad guardada
     private fun eliminarCiudad(ciudad: String) {
         viewModelScope.launch {
             val nuevasCiudades = _ciudadesGuardadas.value - ciudad
@@ -120,12 +109,10 @@ class CiudadesViewModel(
                 preferences[CITIES_KEY] = nuevasCiudades.toSet()
             }
             _ciudadesGuardadas.value = nuevasCiudades
-            // Muestra el mensaje de eliminación
             showDeletionMessage = true
         }
     }
 
-    // Función para obtener la ubicación del usuario
     private fun obtenerUbicacion() {
         uiState = CiudadesEstado.Cargando
         val ubicacion = "Buenos Aires"  // Este sería el resultado de obtener la ubicación real
@@ -144,7 +131,6 @@ class CiudadesViewModel(
         }
     }
 
-    // Método para actualizar las ciudades guardadas
     private fun updateCiudadesGuardadas() {
         _ciudadesGuardadas.value = _ciudadesGuardadas.value
     }
@@ -153,14 +139,13 @@ class CiudadesViewModel(
         viewModelScope.launch {
             guardarCiudadSeleccionada(ciudadNombre)
         }
-
     }
 }
 
 class CiudadesViewModelFactory(
     private val repositorio: Repositorio,
     private val router: Router,
-    private val context: Context // Incluimos el contexto
+    private val context: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

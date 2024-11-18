@@ -47,6 +47,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Scaffold
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.painterResource
+import com.istea.appdelclima.R
 
 @Composable
 fun CiudadesPage(
@@ -77,8 +82,8 @@ fun CiudadesPage(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF5C6BC0), // Azul suave
-                            Color(0xFF8E24AA)  // Violeta suave
+                            Color(0xFF095AEC),
+                            Color(0xFF70EF74)
                         )
                     )
                 )
@@ -103,7 +108,7 @@ fun CiudadesPage(
                 if (ciudadesGuardadas.isNotEmpty()) {
                     Text(
                         text = "Ciudades guardadas:",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         color = Color.White,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -186,7 +191,6 @@ fun CiudadesPage(
         }
     }
 }
-
 @Composable
 fun CiudadCard(
     ciudad: Ciudad,
@@ -197,7 +201,7 @@ fun CiudadCard(
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF3F51B5))
     ) {
         Row(
             modifier = Modifier
@@ -232,14 +236,6 @@ fun CiudadCard(
                     color = Color.Gray
                 )
             }
-
-            // Botón "Guardar"
-            Button(
-                onClick = onSave,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8E24AA))
-            ) {
-                Text(text = "Guardar", color = Color.White)
-            }
         }
     }
 }
@@ -260,57 +256,6 @@ fun CiudadesGuardadas(
 }
 
 @Composable
-fun CiudadCardGuardada(
-    ciudadNombre: String,
-    onRemove: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = ciudadNombre,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
-                color = Color.Black
-            )
-            IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar",
-                    tint = Color.Red
-                )
-            }
-        }
-    }
-}
-
-
-
-
-/*@Composable
-fun CiudadesGuardadas(
-    ciudadesGuardadas: Set<String>,
-    onRemove: (String) -> Unit
-) {
-    LazyColumn {
-        items(ciudadesGuardadas.toList()) { ciudad ->
-            CiudadCardGuardada(
-                ciudadNombre = ciudad,
-                onRemove = { onRemove(ciudad) }
-            )
-        }
-    }
-}*/
-
-/*@Composable
 fun CiudadCardGuardada(
     ciudadNombre: String,
     onRemove: () -> Unit
@@ -319,23 +264,38 @@ fun CiudadCardGuardada(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .shadow(8.dp, shape = RoundedCornerShape(8.dp)),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xE42196F3)),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = ciudadNombre,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium
+                ),
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = onRemove) {
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .padding(4.dp)
+            ) {
                 Icon(
-                    Icons.Default.Delete,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
-                    tint = Color.Red
+                    tint = Color.DarkGray
                 )
             }
         }
     }
-}*/
+}
+
