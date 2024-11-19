@@ -74,25 +74,31 @@ fun CiudadesView(
         }
 
         when (state) {
-            CiudadesEstado.Cargando -> Text(text = "Cargando...", modifier = Modifier.align(Alignment.CenterHorizontally))
-            is CiudadesEstado.Error -> Text(text = state.mensaje, modifier = Modifier.align(Alignment.CenterHorizontally))
+            CiudadesEstado.Cargando -> Text(
+                text = "Cargando...",
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+            )
+            is CiudadesEstado.Error -> Text(
+                text = state.mensaje,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+            )
             is CiudadesEstado.Resultado -> ListaDeCiudades(state.ciudades) {
                 onAction(CiudadesIntencion.Seleccionar(it))
                 onMostrarCiudadesChanged(false)
             }
-            CiudadesEstado.Vacio -> {
-                Text(
-                    text = "No hay resultados aún",
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+            CiudadesEstado.Vacio -> Text(
+                text = "No hay resultados aún",
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
                 )
-            }
+            )
         }
     }
 }

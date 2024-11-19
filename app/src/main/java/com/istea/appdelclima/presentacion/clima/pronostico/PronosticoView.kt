@@ -76,6 +76,7 @@ fun PronosticoView(climas: List<ListForecast>) {
         text = "Cómo seguirá el clima",
         style = MaterialTheme.typography.titleLarge,
         textAlign = TextAlign.Start,
+        color = Color.White,
         fontWeight = FontWeight.Bold,
         modifier = Modifier
             .padding(10.dp)
@@ -87,8 +88,8 @@ fun PronosticoView(climas: List<ListForecast>) {
                     .padding(8.dp)
                     .fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(6.dp),
-                shape = RoundedCornerShape(16.dp), // Bordes más redondeados
-                colors = CardDefaults.cardColors(containerColor = Color(0xB76B30D2)) // Color de fondo
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xB76B30D2))
             ) {
                 Column(
                     modifier = Modifier

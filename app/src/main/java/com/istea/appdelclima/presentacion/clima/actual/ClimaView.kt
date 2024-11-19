@@ -97,8 +97,6 @@ fun ClimaView(
             color = Color.White,
             textAlign = TextAlign.Start
         )
-
-        // Tarjeta con los datos del clima
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -140,16 +138,25 @@ fun ClimaView(
 
 @Composable
 fun EmptyView() {
-    Text(text = "No hay nada que mostrar")
+    Text(
+        text = "No hay nada que mostrar",
+        color = Color.White
+    )
 }
 
 @Composable
 fun LoadingView() {
-    Text(text = "Cargando")
+    Text(
+        text = "Cargando",
+        color = Color.White
+        )
 }
 
 @Composable
 fun ErrorView(mensaje: String) {
-    Text(text = mensaje)
+    Text(
+        text = mensaje,
+        color = Color.White
+    )
 }
 

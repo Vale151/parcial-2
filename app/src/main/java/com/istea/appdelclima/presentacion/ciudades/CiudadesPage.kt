@@ -55,7 +55,7 @@ fun CiudadesPage(
         factory = CiudadesViewModelFactory(
             repositorio = RepositorioApi(),
             router = Enrutador(navHostController),
-            context = context // Pasamos el contexto para DataStore
+            context = context
         )
     )
 
@@ -74,28 +74,12 @@ fun CiudadesPage(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Imagen de fondo
             Image(
-                painter = painterResource(id = R.drawable.background), // Reemplaza con tu recurso
+                painter = painterResource(id = R.drawable.background),
                 contentDescription = "Fondo de pantalla",
-                contentScale = ContentScale.Crop, // Ajusta la imagen al tamaño del Box
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-
-            // Superposición con gradiente
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0x66000000), // Negro con opacidad
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -132,7 +116,7 @@ fun CiudadesPage(
                             item {
                                 CircularProgressIndicator(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .size(44.dp)
                                         .padding(16.dp),
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -159,6 +143,7 @@ fun CiudadesPage(
                             item {
                                 Text(
                                     text = "No hay ciudades disponibles.",
+                                    color = Color.White,
                                     modifier = Modifier.padding(16.dp)
                                 )
                             }
@@ -202,7 +187,7 @@ fun CiudadCard(
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF3F51B5))
+        colors = CardDefaults.cardColors(containerColor = Color(0xB42966F8))
     ) {
         Row(
             modifier = Modifier
@@ -213,7 +198,6 @@ fun CiudadCard(
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Ciudad",
-                tint = Color(0xFF5C6BC0),
                 modifier = Modifier.size(48.dp).padding(end = 16.dp)
             )
 
@@ -221,18 +205,18 @@ fun CiudadCard(
                 Text(
                     text = ciudad.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "País: ${ciudad.country}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = Color.White
                 )
                 Text(
                     text = "Lat: ${ciudad.lat}, Lon: ${ciudad.lon}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.White
                 )
             }
         }
