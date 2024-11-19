@@ -36,6 +36,7 @@ class ClimaViewModel(
                     temperatura = clima.main.temp,
                     descripcion = clima.weather.first().description,
                     st = clima.main.feels_like,
+                    icono = clima.weather.first().icon
                 )
             } catch (exception: Exception){
                 uiState = ClimaEstado.Error(exception.localizedMessage ?: "error desconocido")
