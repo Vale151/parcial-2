@@ -17,31 +17,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
-import androidx.compose.material3.Text
 import com.istea.appdelclima.repository.modelos.Ciudad
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
-import coil.compose.rememberImagePainter
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.tooling.preview.Preview
 import  androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
-import android.content.Context
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Scaffold
@@ -52,6 +44,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
 import com.istea.appdelclima.R
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun CiudadesPage(
@@ -79,35 +72,47 @@ fun CiudadesPage(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF095AEC),
-                            Color(0xFF70EF74)
-                        )
-                    )
-                )
                 .padding(innerPadding)
         ) {
+            // Imagen de fondo
+            Image(
+                painter = painterResource(id = R.drawable.background), // Reemplaza con tu recurso
+                contentDescription = "Fondo de pantalla",
+                contentScale = ContentScale.Crop, // Ajusta la imagen al tamaño del Box
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Superposición con gradiente
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0x66000000), // Negro con opacidad
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Componente de búsqueda
                 CiudadesView(
                     state = state,
                     onAction = { intencion -> viewModel.ejecutar(intencion) },
                     mostrarCiudades = mostrarCiudades.value,
-                    onMostrarCiudadesChanged = {mostrarCiudades.value = it}
+                    onMostrarCiudadesChanged = { mostrarCiudades.value = it }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Mostrar ciudades guardadas
                 if (ciudadesGuardadas.isNotEmpty()) {
                     Text(
-                        text = "Ciudades guardadas:",
+                        text = "Ciudades recientes:",
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White,
                         modifier = Modifier.padding(8.dp)
@@ -119,10 +124,8 @@ fun CiudadesPage(
                         }
                     )
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Resultados de búsqueda en LazyColumn
                 LazyColumn {
                     when (state) {
                         is CiudadesEstado.Cargando -> {
@@ -164,16 +167,14 @@ fun CiudadesPage(
                 }
             }
         }
-        // Mostrar el mensaje emergente si es necesario
         LaunchedEffect(viewModel.showSuccessMessage) {
             if (viewModel.showSuccessMessage) {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Ciudad guardada correctamente",
-                        duration = SnackbarDuration.Short // Duración más corta
+                        duration = SnackbarDuration.Short
                     )
-
-                    viewModel.showSuccessMessage = false // Resetear el estado
+                    viewModel.showSuccessMessage = false
                 }
             }
         }
@@ -182,15 +183,15 @@ fun CiudadesPage(
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Ciudad eliminada",
-                        duration = SnackbarDuration.Short // Duración más corta
+                        duration = SnackbarDuration.Short
                     )
-
-                    viewModel.showDeletionMessage = false // Resetear el estado
+                    viewModel.showDeletionMessage = false
                 }
             }
         }
     }
 }
+
 @Composable
 fun CiudadCard(
     ciudad: Ciudad,
@@ -209,7 +210,6 @@ fun CiudadCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de ciudad
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Ciudad",
@@ -217,7 +217,6 @@ fun CiudadCard(
                 modifier = Modifier.size(48.dp).padding(end = 16.dp)
             )
 
-            // Información de la ciudad
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = ciudad.name,
@@ -265,9 +264,9 @@ fun CiudadCardGuardada(
             .fillMaxWidth()
             .padding(8.dp)
             .shadow(8.dp, shape = RoundedCornerShape(8.dp)),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xE42196F3)),
-        shape = RoundedCornerShape(12.dp)
+        elevation = CardDefaults.cardElevation(0.5.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xB76B30D2)),
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -292,7 +291,7 @@ fun CiudadCardGuardada(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
-                    tint = Color.DarkGray
+                    tint = Color.LightGray
                 )
             }
         }

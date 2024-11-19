@@ -77,7 +77,7 @@ fun PronosticoView(climas: List<ListForecast>) {
                     .fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(6.dp),
                 shape = RoundedCornerShape(16.dp), // Bordes más redondeados
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E88E5)) // Color de fondo
+                colors = CardDefaults.cardColors(containerColor = Color(0xB76B30D2)) // Color de fondo
             ) {
                 Column(
                     modifier = Modifier
@@ -98,18 +98,15 @@ fun PronosticoView(climas: List<ListForecast>) {
                         style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
                     )
 
-                    // Icono del clima
                     val icon = forecast.weather.firstOrNull()?.icon
                     if (icon != null) {
                         Icon(
                             painter = painterResource(id = getIconResource(icon)),
                             contentDescription = "Icono del clima",
                             modifier = Modifier.size(40.dp),
-                            tint = Color.DarkGray
+                            tint = Color.White
                         )
                     }
-
-                    // Temperatura
                     Text(
                         text = "Temperatura: ${forecast.main.temp.toInt()}°C",
                         style = MaterialTheme.typography.bodyLarge.copy(
@@ -118,20 +115,14 @@ fun PronosticoView(climas: List<ListForecast>) {
                             color = Color.White
                         )
                     )
-
-                    // Sensación térmica
                     Text(
                         text = "Sensación térmica: ${forecast.main.feels_like.toInt()}°C",
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
                     )
-
-                    // Humedad
                     Text(
                         text = "Humedad: ${forecast.main.humidity}%",
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
                     )
-
-                    // Descripción del clima
                     Text(
                         text = "Descripción: ${forecast.weather.firstOrNull()?.description ?: "No disponible"}",
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)

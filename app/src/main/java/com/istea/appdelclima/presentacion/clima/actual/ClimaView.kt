@@ -21,8 +21,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.istea.appdelclima.ui.theme.AppDelClimaTheme
 import java.time.LocalTime
 import kotlin.math.roundToInt
-
-import androidx.compose.material.*
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -47,7 +45,7 @@ fun ClimaView(
     ) {
         when (state) {
             is ClimaEstado.Error -> ErrorView(mensaje = state.mensaje)
-            is ClimaEstado.Exitoso -> ClimaView( // Llamada a la segunda ClimaView
+            is ClimaEstado.Exitoso -> ClimaView(
                 ciudad = state.ciudad,
                 temperatura = state.temperatura,
                 descripcion = state.descripcion,
@@ -60,7 +58,6 @@ fun ClimaView(
     }
 }
 
-// Segunda función ClimaView que recibe parámetros individuales
 @Composable
 fun ClimaView(
     ciudad: String,
@@ -69,7 +66,7 @@ fun ClimaView(
     sensacionTermica: Double,
     iconoUrl: String, // URL del icono del clima
     modifier: Modifier = Modifier,
-    cardColor: Color = Color(0xFF4F64EC), // Color de la tarjeta personalizable
+    cardColor: Color = Color(0xB76B30D2),
     iconContentDescription: String = "Icono del clima"
 ) {
     Column(
@@ -88,7 +85,7 @@ fun ClimaView(
         Text(
             text = "$saludo, este es el clima actual!",
             style = MaterialTheme.typography.titleLarge,
-            color = Color.Gray,
+            color = Color.White,
             textAlign = TextAlign.Start
         )
 
@@ -118,7 +115,6 @@ fun ClimaView(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                // Icono del clima usando Coil
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(iconoUrl)
@@ -133,7 +129,6 @@ fun ClimaView(
     }
 }
 
-// Vistas de estado vacío, cargando y error
 @Composable
 fun EmptyView() {
     Text(text = "No hay nada que mostrar")
@@ -162,7 +157,7 @@ fun ClimaPreviewVacio() {
 @Composable
 fun ClimaPreviewError() {
     AppDelClimaTheme {
-        ClimaView(state = ClimaEstado.Error("Se rompió todo"), onAction = {})
+        ClimaView(state = ClimaEstado.Error("Hubo un problema"), onAction = {})
     }
 }
 

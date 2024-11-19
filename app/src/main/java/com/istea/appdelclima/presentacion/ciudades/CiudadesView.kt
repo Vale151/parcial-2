@@ -3,7 +3,6 @@ package com.istea.appdelclima.presentacion.ciudades
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -27,11 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import  androidx.compose.ui.text.font.FontWeight
@@ -78,7 +72,7 @@ fun CiudadesView(
                 )
             }
         }
-        // Mostrar estado según el resultado de la búsqueda
+
         when (state) {
             CiudadesEstado.Cargando -> Text(text = "Cargando...", modifier = Modifier.align(Alignment.CenterHorizontally))
             is CiudadesEstado.Error -> Text(text = state.mensaje, modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -86,7 +80,6 @@ fun CiudadesView(
                 onAction(CiudadesIntencion.Seleccionar(it))
                 onMostrarCiudadesChanged(false)
             }
-            //CiudadesEstado.Vacio -> Text(text = "No hay resultados", modifier = Modifier.align(Alignment.CenterHorizontally))
             CiudadesEstado.Vacio -> {
                 Text(
                     text = "No hay resultados aún",
