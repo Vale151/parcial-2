@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.istea.appdelclima.ui.theme.AppDelClimaTheme
 import java.time.LocalTime
 import kotlin.math.roundToInt
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +25,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 import com.istea.appdelclima.R
+import android.util.Log
 
 // Función principal ClimaView
 @Composable
@@ -45,13 +45,22 @@ fun ClimaView(
     ) {
         when (state) {
             is ClimaEstado.Error -> ErrorView(mensaje = state.mensaje)
-            is ClimaEstado.Exitoso -> ClimaView(
-                ciudad = state.ciudad,
-                temperatura = state.temperatura,
-                descripcion = state.descripcion,
-                sensacionTermica = state.st,
-                iconoUrl = "https://openweathermap.org/img/wn/${state.icono}@2x.png"
-            )
+            is ClimaEstado.Exitoso -> {
+                // Verificar si icono es válido
+                val icono = if (state.icono.isNotEmpty()) state.icono else "01d"  // Valor predeterminado si está vacío
+                val iconoUrl = "https://openweathermap.org/img/wn/${icono}@2x.png"
+
+                // Verificamos la URL del ícono
+                Log.d("ClimaView", "URL del ícono VALEE: $iconoUrl")
+
+                ClimaView(
+                    ciudad = state.ciudad,
+                    temperatura = state.temperatura,
+                    descripcion = state.descripcion,
+                    sensacionTermica = state.st,
+                    iconoUrl = iconoUrl
+                )
+            }
             ClimaEstado.Vacio -> LoadingView()
             ClimaEstado.Cargando -> EmptyView()
         }
@@ -144,36 +153,3 @@ fun ErrorView(mensaje: String) {
     Text(text = mensaje)
 }
 
-// Previews para testing
-@Preview(showBackground = true)
-@Composable
-fun ClimaPreviewVacio() {
-    AppDelClimaTheme {
-        ClimaView(state = ClimaEstado.Vacio, onAction = {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ClimaPreviewError() {
-    AppDelClimaTheme {
-        ClimaView(state = ClimaEstado.Error("Hubo un problema"), onAction = {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ClimaPreviewExitoso() {
-    AppDelClimaTheme {
-        ClimaView(
-            state = ClimaEstado.Exitoso(
-                ciudad = "Mendoza",
-                temperatura = 18.0,
-                descripcion = "Lluvia moderada",
-                st = 16.0,
-                icono = "10d"
-            ),
-            onAction = {}
-        )
-    }
-}

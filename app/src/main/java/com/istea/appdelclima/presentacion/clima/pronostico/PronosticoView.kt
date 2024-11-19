@@ -22,10 +22,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import com.istea.appdelclima.R
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun PronosticoView(
@@ -69,6 +72,14 @@ fun ErrorView(mensaje: String){
 
 @Composable
 fun PronosticoView(climas: List<ListForecast>) {
+    Text(
+        text = "Cómo seguirá el clima",
+        style = MaterialTheme.typography.titleLarge,
+        textAlign = TextAlign.Start,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .padding(10.dp)
+    )
     LazyColumn {
         items(items = climas) { forecast ->
             Card(
@@ -92,19 +103,23 @@ fun PronosticoView(climas: List<ListForecast>) {
                     val formattedDate = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
                         .format(date)
 
-                    // Mostrar la fecha
                     Text(
                         text = "Fecha: $formattedDate",
                         style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
                     )
 
-                    val icon = forecast.weather.firstOrNull()?.icon
+                    val icon = if (forecast.weather.first().icon.isNotEmpty()) forecast.weather.firstOrNull()?.icon else "01d"
+                    val iconoUrl = "https://openweathermap.org/img/wn/${icon}@2x.png"
+
                     if (icon != null) {
-                        Icon(
-                            painter = painterResource(id = getIconResource(icon)),
-                            contentDescription = "Icono del clima",
-                            modifier = Modifier.size(40.dp),
-                            tint = Color.White
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(iconoUrl)
+                                .placeholder(R.drawable.ic_loading)
+                                .error(R.drawable.ic_error)
+                                .build(),
+                            contentDescription = forecast.weather.first().description,
+                            modifier = Modifier.size(64.dp)
                         )
                     }
                     Text(
@@ -130,25 +145,6 @@ fun PronosticoView(climas: List<ListForecast>) {
                 }
             }
         }
-    }
-}
-
-
-// Función para obtener el recurso del icono
-fun getIconResource(icon: String): Int {
-    return when (icon) {
-        "01d" -> R.drawable.sun // Día soleado
-        "01n" -> R.drawable.moon // Noche clara
-        "02d" -> R.drawable.cloudy // Día parcialmente nublado
-        "02n" -> R.drawable.cloudy // Noche parcialmente nublada
-        "03d", "03n" -> R.drawable.cloud // Nublado
-        "04d", "04n" -> R.drawable.cloud // Muy nublado
-        "09d", "09n" -> R.drawable.storm // Lluvia
-        "10d", "10n" -> R.drawable.storm // Lluvias intermitentes
-        "11d", "11n" -> R.drawable.storm // Tormenta
-        "13d", "13n" -> R.drawable.snowflake // Nieve
-        "50d", "50n" -> R.drawable.fog // Niebla
-        else -> R.drawable.unknown // Desconocido
     }
 }
 
